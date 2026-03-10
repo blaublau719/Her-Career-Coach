@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anschreiben Generator</title>
+    <link rel="icon" type="image/jpeg" href="/icon/mengmeng.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="/icon/mengmeng.jpg">
+    <link rel="apple-touch-icon" href="/icon/mengmeng.jpg">
+    <meta name="msapplication-TileImage" content="/icon/mengmeng.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .form-section {
+            width: 450px;
+            min-width: 300px;
+            max-width: 70vw;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .splitter {
+            width: 8px;
+            background: #e0e0e0;
+            cursor: col-resize;
+            position: relative;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .splitter:hover {
+            background: #667eea;
+        }
+
+        .splitter::after {
+            content: '⋮⋮';
+            color: #999;
+            font-size: 14px;
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+
+        .splitter:hover::after {
+            color: white;
+        }
+
+        .results-section {
+            flex: 1;
+            padding: 1.5rem;
+            background: white;
+            overflow-y: auto;
+            height: 100%;
+            min-width: 200px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"], input[type="url"], textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="url"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 0.75rem;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover .file-upload-label {
+            background: #e0e0e0;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-item {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .results-container {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .left-column {
+            flex: 1 1 45%;
+            min-width: 300px;
+        }
+
+        .right-column {
+            flex: 1 1 45%;
+            min-width: 300px;
+            border-left: 3px solid #667eea;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .results-container {
+                flex-direction: column;
+            }
+            
+            .left-column,
+            .right-column {
+                flex: 1 1 100%;
+                min-width: unset;
+            }
+            
+            .right-column {
+                border-left: none;
+                border-top: 3px solid #667eea;
+                padding-left: 0;
+                padding-top: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .resize-handle {
+                display: none;
+            }
+            
+            .section-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 8px;
+            }
+            
+            .title-icon {
+                width: 56px;
+                height: 56px;
+                border-radius: 12px;
+            }
+            
+            .result-item h3 {
+                gap: 0.75rem;
+                font-size: 1rem;
+            }
+        }
+
+        .resize-handle {
+            position: absolute;
+            left: -3px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            cursor: col-resize;
+            background: #667eea;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+
+        .resize-handle:hover {
+            opacity: 0.7;
+        }
+
+        .cover-letter-column {
+            height: auto;
+        }
+
+
+        .title-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .result-content {
+            background: #fafbfc;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #e1e8ed;
+            max-height: calc(70vh - 4rem);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .copy-button:hover {
+            opacity: 1;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .form-section {
+                width: 100% !important;
+                height: 50vh;
+                max-width: none;
+            }
+            
+            .splitter {
+                display: none;
+            }
+            
+            .results-section {
+                flex: none;
+                height: 50vh;
+                border-top: 1px solid #e0e0e0;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            .result-content {
+                max-height: calc(20vh - 2rem);
+            }
+        }
+
+        .preview-text {
+            background: #e9ecef;
+            padding: 0.5rem;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .markdown-content {
+            line-height: 1.6;
+        }
+
+        .markdown-content h1 {
+            color: #667eea;
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.25rem;
+        }
+
+        .markdown-content h2 {
+            color: #764ba2;
+            font-size: 1.1rem;
+            margin: 0.5rem 0 0.25rem 0;
+        }
+
+        .markdown-content h3 {
+            color: #555;
+            font-size: 1rem;
+            margin: 0.25rem 0;
+        }
+
+        .markdown-content p {
+            margin: 0.5rem 0;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .markdown-content li {
+            margin: 0.25rem 0;
+        }
+
+        .markdown-content strong {
+            color: #333;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><img src="/icon/title.jpg" alt="Title" class="title-icon"> Anschreiben Generator</h1>
+            <p>AI-powered cover letter generation for your job applications</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-section">
+                <h2>Input Information</h2>
+                <form id="applicationForm">
+                    <div class="form-group">
+                        <label for="jobUrl">Job Posting URL *</label>
+                        <input type="url" id="jobUrl" name="posting_url" required 
+                               placeholder="https://example.com/job-posting">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="resumeFile">Upload Resume File</label>
+                        <div class="file-upload">
+                            <input type="file" id="resumeFile" accept=".txt,.md,.doc,.docx,.pdf">
+                            <label for="resumeFile" class="file-upload-label">
+                                📄 Click to upload resume or drag & drop
+                            </label>
+                        </div>
+                        <div id="resumePreview" class="preview-text" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="resumeContent">Resume Content *</label>
+                        <textarea id="resumeContent" name="resume_content" rows="6" required
+                                  placeholder="Paste your resume content here or upload a file above..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="motivation">Motivation for the Job *</label>
+                        <textarea id="motivation" name="motivation" rows="4" required
+                                  placeholder="Describe your motivation and interest in this specific job..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="personalStatement">Personal Statement (Optional)</label>
+                        <textarea id="personalStatement" name="personal_statement" rows="3"
+                                  placeholder="Additional personal information, hobbies, interests..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn" data-type="basic">
+                            🚀 Generate Cover Letter
+                        </button>
+                        <button type="submit" class="btn btn-secondary" data-type="full">
+                            ⭐ Generate Full Analysis
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="splitter" id="splitter"></div>
+            
+            <div class="results-section">
+                <h2>Generated Results</h2>
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Generating your application materials...</p>
+                    <p><small>This may take a few minutes</small></p>
+                </div>
+                
+                <div id="results" style="display: none;">
+                    <div class="results-container">
+                        <div class="left-column">
+                            <div id="jobDescription" class="result-item">
+                                <h3><img src="/icon/posting.jpg" alt="Job" class="section-icon"> Job Description Analysis</h3>
+                                <div class="result-content">
+                                    <button class="copy-button" onclick="copyToClipboard('jobDescription')">📋 Copy</button>
+                                </div>
+                            </div>
+                            
+                            <div id="clientProfile" class="result-item">
+                                <h3><img src="/icon/personal_profile.jpg" alt="Profile" class="section-icon"> Your Profile Summary</h3>
+                                <div class="result-content">
+                                    <button class="copy-button" onclick="copyToClipboard('clientProfile')">📋 Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="right-column">
+                            <div class="resize-handle"></div>
+                            <div id="coverLetter" class="result-item cover-letter-column">
+                                <h3><img src="/icon/cover_letter.jpg" alt="Cover Letter" class="section-icon"> Generated Cover Letter (Anschreiben)</h3>
+                                <div class="result-content">
+                                    <button class="copy-button" onclick="copyToClipboard('coverLetter')">📋 Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="companyProfile" class="result-item" style="display: none;">
+                        <h3>🏢 Company Research</h3>
+                        <div class="result-content">
+                            <button class="copy-button" onclick="copyToClipboard('companyProfile')">📋 Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div id="refinedResume" class="result-item" style="display: none;">
+                        <h3>📄 Optimized Resume</h3>
+                        <div class="result-content">
+                            <button class="copy-button" onclick="copyToClipboard('refinedResume')">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="errorMessage" class="error" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Splitter functionality
+        let isResizing = false;
+        
+        document.getElementById('splitter').addEventListener('mousedown', function(e) {
+            isResizing = true;
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', stopResize);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        });
+        
+        function handleMouseMove(e) {
+            if (!isResizing) return;
+            
+            const container = document.querySelector('.main-content');
+            const formSection = document.querySelector('.form-section');
+            const containerRect = container.getBoundingClientRect();
+            
+            // Calculate new width based on mouse position
+            let newWidth = e.clientX - containerRect.left;
+            
+            // Apply constraints
+            const minWidth = 300;
+            const maxWidth = Math.min(containerRect.width * 0.7, containerRect.width - 200);
+            
+            newWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
+            
+            formSection.style.width = newWidth + 'px';
+        }
+        
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', stopResize);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+        
+        // Handle file upload
+        document.getElementById('resumeFile').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/upload-resume', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('resumeContent').value = result.content;
+                    document.getElementById('resumePreview').textContent = result.content.substring(0, 200) + '...';
+                    document.getElementById('resumePreview').style.display = 'block';
+                    showMessage('Resume uploaded successfully!', 'success');
+                } else {
+                    throw new Error(result.detail || 'Upload failed');
+                }
+            } catch (error) {
+                showError('Error uploading resume: ' + error.message);
+            }
+        });
+        
+        // Handle form submission
+        document.getElementById('applicationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = e.submitter;
+            const isFullAnalysis = submitButton.dataset.type === 'full';
+            
+            // Get form data
+            const formData = new FormData(e.target);
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Disable form
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            try {
+                const endpoint = isFullAnalysis ? '/generate-full' : '/generate';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.detail || 'Generation failed');
+                }
+                
+                // Display results
+                displayResults(result, isFullAnalysis);
+                
+            } catch (error) {
+                showError('Error generating application materials: ' + error.message);
+            } finally {
+                // Hide loading and re-enable form
+                document.getElementById('loading').style.display = 'none';
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        });
+        
+        function formatMarkdown(text) {
+            if (!text) return '';
+            
+            return text
+                // Headers
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                
+                // Bold text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/__(.*?)__/g, '<strong>$1</strong>')
+                
+                // Lists - handle simple bullet points
+                .replace(/^\- (.*$)/gm, '<li>$1</li>')
+                .replace(/^\* (.*$)/gm, '<li>$1</li>')
+                
+                // Line breaks
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                
+                // Wrap in paragraph if no headers
+                .replace(/^(?!<[h1-6]|<li|<ul|<ol)/gm, '<p>')
+                .replace(/(?<!<\/[h1-6]>|<\/li>|<\/ul>|<\/ol>)$/gm, '</p>')
+                
+                // Clean up list formatting
+                .replace(/(<li>.*<\/li>)/gs, function(match) {
+                    return '<ul>' + match + '</ul>';
+                })
+                
+                // Clean up extra paragraph tags
+                .replace(/<p><\/p>/g, '')
+                .replace(/<p>(<[h1-6])/g, '$1')
+                .replace(/(<\/[h1-6]>)<\/p>/g, '$1');
+        }
+        
+        function displayResults(data, isFullAnalysis) {
+            // Job Description - format it nicely instead of raw JSON
+            const jobContent = document.querySelector('#jobDescription .result-content');
+            const jobCopyBtn = jobContent.querySelector('.copy-button');
+            
+            if (data.job_description && typeof data.job_description === 'object') {
+                let formatted = '';
+                for (const [key, value] of Object.entries(data.job_description)) {
+                    formatted += `<strong>${key}:</strong> ${value}\n\n`;
+                }
+                jobContent.innerHTML = jobCopyBtn.outerHTML + '<div style="white-space: pre-wrap;">' + formatted + '</div>';
+            } else {
+                jobContent.innerHTML = jobCopyBtn.outerHTML + (data.job_description || 'Not available');
+            }
+            
+            // Client Profile - Format markdown content
+            const clientContent = document.querySelector('#clientProfile .result-content');
+            const clientCopyBtn = clientContent.querySelector('.copy-button');
+            const profileText = data.client_profile || 'Not available';
+            const formattedProfile = formatMarkdown(profileText);
+            clientContent.innerHTML = clientCopyBtn.outerHTML + '<div class="markdown-content">' + formattedProfile + '</div>';
+            
+            // Cover Letter - This is the main deliverable, format it nicely
+            const coverContent = document.querySelector('#coverLetter .result-content');
+            const coverCopyBtn = coverContent.querySelector('.copy-button');
+            const coverLetterText = data.cover_letter || 'Not available';
+            coverContent.innerHTML = coverCopyBtn.outerHTML + '<div class="cover-letter-text">' + coverLetterText + '</div>';
+            
+            // Full analysis results
+            if (isFullAnalysis) {
+                if (data.company_profile) {
+                    const companyContent = document.querySelector('#companyProfile .result-content');
+                    const companyCopyBtn = companyContent.querySelector('.copy-button');
+                    const companyText = typeof data.company_profile === 'object' ? 
+                        JSON.stringify(data.company_profile, null, 2) : 
+                        data.company_profile;
+                    companyContent.innerHTML = companyCopyBtn.outerHTML + '<pre>' + companyText + '</pre>';
+                    document.getElementById('companyProfile').style.display = 'block';
+                }
+                
+                if (data.refined_resume) {
+                    const resumeContent = document.querySelector('#refinedResume .result-content');
+                    const resumeCopyBtn = resumeContent.querySelector('.copy-button');
+                    resumeContent.innerHTML = resumeCopyBtn.outerHTML + data.refined_resume;
+                    document.getElementById('refinedResume').style.display = 'block';
+                }
+            } else {
+                document.getElementById('companyProfile').style.display = 'none';
+                document.getElementById('refinedResume').style.display = 'none';
+            }
+            
+            document.getElementById('results').style.display = 'block';
+            showMessage('Application materials generated successfully!', 'success');
+        }
+        
+        function copyToClipboard(elementId) {
+            const element = document.querySelector(`#${elementId} .result-content`);
+            let textToCopy = '';
+            
+            // Extract text content, excluding the copy button
+            const copyButton = element.querySelector('.copy-button');
+            const clone = element.cloneNode(true);
+            const cloneButton = clone.querySelector('.copy-button');
+            if (cloneButton) {
+                cloneButton.remove();
+            }
+            textToCopy = clone.textContent || clone.innerText;
+            
+            // Use the modern Clipboard API if available
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showMessage('Content copied to clipboard!', 'success');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(textToCopy);
+                });
+            } else {
+                fallbackCopyTextToClipboard(textToCopy);
+            }
+        }
+        
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showMessage('Content copied to clipboard!', 'success');
+            } catch (err) {
+                showMessage('Failed to copy content', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function showMessage(message, type) {
+            // Create a temporary message element
+            const messageEl = document.createElement('div');
+            messageEl.textContent = message;
+            messageEl.className = type;
+            messageEl.style.position = 'fixed';
+            messageEl.style.top = '20px';
+            messageEl.style.right = '20px';
+            messageEl.style.zIndex = '1000';
+            messageEl.style.minWidth = '300px';
+            
+            document.body.appendChild(messageEl);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                document.body.removeChild(messageEl);
+            }, 3000);
+        }
+
+        // Resize functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const resizeHandle = document.querySelector('.resize-handle');
+            const resultsContainer = document.querySelector('.results-container');
+            const leftColumn = document.querySelector('.left-column');
+            const rightColumn = document.querySelector('.right-column');
+
+            if (resizeHandle && resultsContainer) {
+                let isResizing = false;
+
+                resizeHandle.addEventListener('mousedown', function(e) {
+                    isResizing = true;
+                    document.body.style.cursor = 'col-resize';
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', function(e) {
+                    if (!isResizing) return;
+
+                    const containerRect = resultsContainer.getBoundingClientRect();
+                    const containerWidth = containerRect.width;
+                    const mouseX = e.clientX - containerRect.left;
+                    const leftWidth = (mouseX / containerWidth) * 100;
+                    const rightWidth = 100 - leftWidth;
+
+                    if (leftWidth >= 25 && rightWidth >= 25) {
+                        leftColumn.style.flex = `0 0 ${leftWidth}%`;
+                        rightColumn.style.flex = `0 0 ${rightWidth}%`;
+                    }
+                });
+
+                document.addEventListener('mouseup', function() {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

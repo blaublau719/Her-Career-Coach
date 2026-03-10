@@ -1,0 +1,15 @@
+openai>=1.0.0
+crewai
+crewai-tools
+langchain-community
+duckduckgo-search
+pydantic
+requests
+beautifulsoup4
+fastapi
+uvicorn
+python-multipart
+jinja2
+python-dotenv
+PyPDF2
+python-docx

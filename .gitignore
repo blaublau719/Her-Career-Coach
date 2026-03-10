@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables (secrets)
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ChromaDB lock files
+*.lock
+
+# Outputs (generated cover letters)
+outputs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Byte-compiled
+*.pyc
