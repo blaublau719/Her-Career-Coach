@@ -888,9 +888,11 @@
         const coverContent = document.querySelector(
           "#coverLetter .result-content",
         );
+        const coverPdfBtn = coverContent.querySelector(".download-pdf-button");
         const coverCopyBtn = coverContent.querySelector(".copy-button");
         const coverLetterText = data.cover_letter || "Not available";
         coverContent.innerHTML =
+          (coverPdfBtn ? coverPdfBtn.outerHTML : '') +
           coverCopyBtn.outerHTML +
           '<div class="cover-letter-text">' +
           coverLetterText +
