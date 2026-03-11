@@ -1,0 +1,11 @@
+venv/
+venv313/
+__pycache__/
+*.pyc
+.git/
+.env
+*.pdf
+preview*.pdf
+outputs/
+.roo/
+CC.ipynb
