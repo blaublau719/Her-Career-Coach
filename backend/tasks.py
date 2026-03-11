@@ -1,6 +1,7 @@
 from crewai import Task
 from .models import JobDescription, CompInfo
 
+
 class AnschreibenTasks:
     @staticmethod
     def create_job_analysis_task(agent, web_scraper_tool):
@@ -11,36 +12,36 @@ class AnschreibenTasks:
                 "{job_posting_content}\n\n"
                 "Return ONLY this JSON format (replace values with extracted information or 'Information not available'):\n"
                 "{{\n"
-                "  \"Job_Title\": \"extract job title here\",\n"
-                "  \"Company_Name\": \"extract company name here\",\n"
-                "  \"Job_Description\": \"extract job description here\",\n"
-                "  \"Key_Responsibilities\": \"extract responsibilities here\",\n"
-                "  \"Qualifications_and_Requirements\": \"extract requirements here\",\n"
-                "  \"Location\": \"extract location here\",\n"
-                "  \"Benefits_Salary\": \"extract benefits here\",\n"
-                "  \"Company_Overview\": \"extract company info here\"\n"
+                '  "Job_Title": "extract job title here",\n'
+                '  "Company_Name": "extract company name here",\n'
+                '  "Job_Description": "extract job description here",\n'
+                '  "Key_Responsibilities": "extract responsibilities here",\n'
+                '  "Qualifications_and_Requirements": "extract requirements here",\n'
+                '  "Location": "extract location here",\n'
+                '  "Benefits_Salary": "extract benefits here",\n'
+                '  "Company_Overview": "extract company info here"\n'
                 "}}\n\n"
                 "RETURN ONLY THE JSON OBJECT ABOVE WITH EXTRACTED VALUES. NO OTHER TEXT."
             ),
             expected_output=(
                 "A valid JSON object with exactly these 8 fields:\n"
                 "{\n"
-                "  \"Job_Title\": \"exact title from posting or 'Information not available'\",\n"
-                "  \"Company_Name\": \"actual company name or 'Information not available'\",\n"
-                "  \"Job_Description\": \"summary from posting or 'Information not available'\",\n"
-                "  \"Key_Responsibilities\": \"duties listed or 'Information not available'\",\n"
-                "  \"Qualifications_and_Requirements\": \"requirements listed or 'Information not available'\",\n"
-                "  \"Location\": \"work location or 'Information not available'\",\n"
-                "  \"Benefits_Salary\": \"compensation info or 'Information not available'\",\n"
-                "  \"Company_Overview\": \"company info or 'Information not available'\"\n"
+                '  "Job_Title": "exact title from posting or \'Information not available\'",\n'
+                '  "Company_Name": "actual company name or \'Information not available\'",\n'
+                '  "Job_Description": "summary from posting or \'Information not available\'",\n'
+                '  "Key_Responsibilities": "duties listed or \'Information not available\'",\n'
+                '  "Qualifications_and_Requirements": "requirements listed or \'Information not available\'",\n'
+                '  "Location": "work location or \'Information not available\'",\n'
+                '  "Benefits_Salary": "compensation info or \'Information not available\'",\n'
+                '  "Company_Overview": "company info or \'Information not available\'"\n'
                 "}\n"
                 "The response must be valid JSON that can be parsed."
             ),
             # output_pydantic=JobDescription,  # Disabled - using manual parsing
             # output_file="job_description.json",
-            agent=agent
+            agent=agent,
         )
-    
+
     @staticmethod
     def create_client_profile_task(agent):
         return Task(
@@ -81,9 +82,9 @@ class AnschreibenTasks:
                 "All sections should use proper markdown headings and professional formatting."
             ),
             agent=agent,
-            output_file="client_profile.md"
+            output_file="client_profile.md",
         )
-    
+
     @staticmethod
     def create_company_research_task(agent, job_task):
         return Task(
@@ -109,9 +110,9 @@ class AnschreibenTasks:
             agent=agent,
             context=[job_task],
             output_json=CompInfo,
-            output_file="company_profile.json"
+            output_file="company_profile.json",
         )
-    
+
     @staticmethod
     def create_resume_refinement_task(agent, client_task, job_task):
         return Task(
@@ -120,14 +121,14 @@ class AnschreibenTasks:
                 "Make use of information provided by ClientKnower to tailor her resume for the job, highlighting her skills and experiences most relevant to that position."
                 "If the client's experience or ability align with job requirement, use keywords from the job posting to help her resume pass applicant tracking systems (ATS)."
                 "Here are the principles of how you should improve her resume:"
-                      "1. Make sure the information of client that align with the job's requirement is prioritized in the resume."
-                      "2. Make use of information provided by ClientKnower to make the resume comprehensive"
-                      "3. Use action verbs and concrete examples rather than vague statements"
-                      "4. Use a clean, professional font and formatting that is easy to read"
-                      "5. Proofread carefully for any errors or typos"
-                      "6. Do not fake any information that is not true about the client"
-                      "7. Use the original language of the job posting."
-                      "8. Use markdown formatting for better readability."
+                "1. Make sure the information of client that align with the job's requirement is prioritized in the resume."
+                "2. Make use of information provided by ClientKnower to make the resume comprehensive"
+                "3. Use action verbs and concrete examples rather than vague statements"
+                "4. Use a clean, professional font and formatting that is easy to read"
+                "5. Proofread carefully for any errors or typos"
+                "6. Do not fake any information that is not true about the client"
+                "7. Use the original language of the job posting."
+                "8. Use markdown formatting for better readability."
             ),
             expected_output=(
                 "A comprehensive and well structured resume document in markdown format"
@@ -137,9 +138,9 @@ class AnschreibenTasks:
             ),
             agent=agent,
             context=[client_task, job_task],
-            output_file="refined_resume.md"
+            output_file="refined_resume.md",
         )
-    
+
     @staticmethod
     def create_cover_letter_task(agent, client_task, job_task):
         return Task(
@@ -151,7 +152,8 @@ class AnschreibenTasks:
                 "{Motivation}\n\n"
                 "STEP 3: Write a professional German cover letter that includes:\n"
                 "- Header with client's real contact information (name, address, email, phone)\n"
-                "- Date and company address (if available)\n"
+                "- Date: Use EXACTLY this date: {current_date} (format: DD.MM.YYYY). Do NOT use any other date.\n"
+                "- Company address (if available)\n"
                 "- Professional greeting: 'Sehr geehrte Damen und Herren'\n"
                 "- Opening paragraph introducing the specific job position\n"
                 "- Body paragraphs incorporating the client's motivation and relevant qualifications\n"
@@ -179,9 +181,9 @@ class AnschreibenTasks:
             ),
             agent=agent,
             context=[client_task, job_task],
-            output_file="cover_letter.md"
+            output_file="cover_letter.md",
         )
-    
+
     @staticmethod
     def create_fact_check_task(agent, client_task, job_task, cover_letter_task):
         return Task(
@@ -204,5 +206,5 @@ class AnschreibenTasks:
             ),
             agent=agent,
             context=[client_task, job_task, cover_letter_task],
-            output_file="cover_letter_checked.md"
+            output_file="cover_letter_checked.md",
         )
