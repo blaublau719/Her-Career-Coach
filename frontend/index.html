@@ -1046,6 +1046,28 @@
         }, 3000);
       }
 
+      // ── Cache form fields in localStorage ─────────────────────
+      (function initFieldCache() {
+        const cachedFields = ['motivation', 'personalStatement', 'resumeContent'];
+        // Restore saved values on load
+        cachedFields.forEach(id => {
+          const saved = localStorage.getItem('cc_' + id);
+          if (saved) {
+            const el = document.getElementById(id);
+            if (el && !el.value) el.value = saved;
+          }
+        });
+        // Save on every input
+        cachedFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.addEventListener('input', () => {
+              localStorage.setItem('cc_' + id, el.value);
+            });
+          }
+        });
+      })();
+
       // Resize functionality
       document.addEventListener("DOMContentLoaded", function () {
         const resizeHandle = document.querySelector(".resize-handle");
